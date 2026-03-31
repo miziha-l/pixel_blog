@@ -8,6 +8,7 @@ import Button from '@mui/material/Button';
 import Avatar from '@mui/material/Avatar';
 import { useBlogStore } from '@/store/useBlogStore';
 import { usePixelSound } from '@/hooks/usePixelSound';
+import { usePlayerStore } from '@/store/usePlayerStore';
 
 interface CommentSectionProps {
   postId: string;
@@ -21,6 +22,7 @@ export default function CommentSection({ postId }: CommentSectionProps) {
   const comments = useBlogStore(state => state.comments.filter(c => c.postId === postId));
   const addComment = useBlogStore(state => state.addComment);
   const { playClick, playSuccess, playError } = usePixelSound();
+  const { addExp } = usePlayerStore();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,6 +40,7 @@ export default function CommentSection({ postId }: CommentSectionProps) {
     setAuthor('');
     setContent('');
     playSuccess();
+    addExp(20); // 留言获得 20 EXP
   };
 
   return (

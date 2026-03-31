@@ -2,23 +2,32 @@
 
 import React, { useState } from 'react';
 import { useBlogStore } from '@/store/useBlogStore';
+import { usePlayerStore } from '@/store/usePlayerStore';
+import { usePixelSound } from '@/hooks/usePixelSound';
 import { Container, Typography, Box, Paper, TextField, Button, Avatar } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
 
 export default function Guestbook() {
   const messages = useBlogStore((state) => state.messages);
   const addMessage = useBlogStore((state) => state.addMessage);
+  const { addExp } = usePlayerStore();
+  const { playSuccess, playError } = usePixelSound();
   
   const [author, setAuthor] = useState('');
   const [content, setContent] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!author.trim() || !content.trim()) return;
+    if (!author.trim() || !content.trim()) {
+      playError();
+      return;
+    }
     
     addMessage({ author, content });
     setAuthor('');
     setContent('');
+    playSuccess();
+    addExp(30); // 留言获得较多经验
   };
 
   return (

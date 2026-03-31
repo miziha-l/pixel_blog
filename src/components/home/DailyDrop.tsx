@@ -3,6 +3,8 @@
 import React, { useState } from 'react';
 import { Box, Typography, Button, Paper } from '@mui/material';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
+import { usePlayerStore } from '@/store/usePlayerStore';
+import { usePixelSound } from '@/hooks/usePixelSound';
 
 const DAILY_DROPS = [
   { item: '传说中的机械键盘', rarity: 'Legendary', buff: '打字速度 +100%, Bug产生率 -50%', color: '#f39c12' },
@@ -15,16 +17,21 @@ const DAILY_DROPS = [
 export default function DailyDrop() {
   const [drop, setDrop] = useState<typeof DAILY_DROPS[0] | null>(null);
   const [isOpening, setIsOpening] = useState(false);
+  const { addExp } = usePlayerStore();
+  const { playClick, playSuccess } = usePixelSound();
 
   const handleOpen = () => {
     setIsOpening(true);
     setDrop(null);
+    playClick();
     
     // 模拟开箱动画延迟
     setTimeout(() => {
       const randomItem = DAILY_DROPS[Math.floor(Math.random() * DAILY_DROPS.length)];
       setDrop(randomItem);
       setIsOpening(false);
+      playSuccess();
+      addExp(50); // 每日补给给 50 经验
     }, 1500);
   };
 

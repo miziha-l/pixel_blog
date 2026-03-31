@@ -9,17 +9,17 @@ export default function PlayerStatus() {
   const { level, exp, maxExp } = usePlayerStore();
   const [prevLevel, setPrevLevel] = useState(level);
   const [showLevelUp, setShowLevelUp] = useState(false);
-  const { playSuccess } = usePixelSound();
+  const { playLevelUp } = usePixelSound();
 
   useEffect(() => {
     if (level > prevLevel) {
       setShowLevelUp(true);
-      playSuccess();
+      playLevelUp();
       const timer = setTimeout(() => setShowLevelUp(false), 3000);
       setPrevLevel(level);
       return () => clearTimeout(timer);
     }
-  }, [level, prevLevel, playSuccess]);
+  }, [level, prevLevel, playLevelUp]);
 
   const expPercentage = Math.min(100, (exp / maxExp) * 100);
 

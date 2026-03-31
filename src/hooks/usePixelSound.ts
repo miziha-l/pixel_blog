@@ -65,11 +65,21 @@ export function usePixelSound() {
     setTimeout(() => playTone(1319, 'square', 0.3, 0.05), 100);
   };
 
+  const playLevelUp = () => {
+    if (!soundEnabled || !audioCtxRef.current) return;
+    playTone(440, 'square', 0.1, 0.05);
+    setTimeout(() => playTone(554, 'square', 0.1, 0.05), 100);
+    setTimeout(() => playTone(659, 'square', 0.1, 0.05), 200);
+    setTimeout(() => playTone(880, 'square', 0.1, 0.05), 300);
+    setTimeout(() => playTone(1108, 'square', 0.1, 0.05), 400);
+    setTimeout(() => playTone(1318, 'square', 0.4, 0.05), 500);
+  };
+
   const playError = () => {
     if (!soundEnabled || !audioCtxRef.current) return;
     playTone(300, 'sawtooth', 0.2, 0.1);
     setTimeout(() => playTone(250, 'sawtooth', 0.4, 0.1), 150);
   };
 
-  return { playClick, playHover, playSuccess, playCoin, playError };
+  return { playClick, playHover, playSuccess, playCoin, playLevelUp, playError };
 }
