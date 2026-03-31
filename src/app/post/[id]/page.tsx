@@ -45,7 +45,8 @@ export default function PostDetail({ params }: { params: Promise<{ id: string }>
     if (!isLiked) {
       likePost(post.id);
       setIsLiked(true);
-      playSuccess();
+      playCoin(); // Use coin sound for like
+      addExp(5); // 投喂给经验
     }
   };
 
