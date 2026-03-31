@@ -1,1 +1,293 @@
 @import "tailwindcss";
+
+:root {
+  --bg-color: #fff0f5;
+  --grid-color: #ffb6c1;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--bg-color);
+  background-image:
+    linear-gradient(var(--grid-color) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+  background-size: 24px 24px;
+  font-family: "DotGothic16", "Microsoft YaHei", "SimHei", monospace;
+  color: #2d3436;
+  cursor:
+    url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" style="fill:%23ff7b9c;stroke:%23000;stroke-width:2px;"><path d="M4 4h4v4h-4zM8 8h4v4h-4zM12 12h4v4h-4zM16 16h4v4h-4z"/></svg>'),
+    auto;
+  position: relative;
+}
+
+/* Dynamic Sakura/Pixel Background */
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: -1;
+  background-image:
+    radial-gradient(#ff7b9c 2px, transparent 2px),
+    radial-gradient(#48dbfb 2px, transparent 2px);
+  background-size:
+    100px 100px,
+    150px 150px;
+  background-position:
+    0 0,
+    50px 50px;
+  animation: bg-scroll 20s linear infinite;
+  opacity: 0.3;
+}
+
+@keyframes bg-scroll {
+  0% {
+    background-position:
+      0 0,
+      50px 50px;
+  }
+  100% {
+    background-position:
+      100px 100px,
+      200px 200px;
+  }
+}
+
+/* Custom Pixel Scrollbar */
+::-webkit-scrollbar {
+  width: 16px;
+  background-color: #f1f2f6;
+  border-left: 2px solid #000;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #ff7b9c;
+  border: 2px solid #000;
+  box-shadow:
+    inset 2px 2px 0px rgba(255, 255, 255, 0.5),
+    inset -2px -2px 0px rgba(0, 0, 0, 0.2);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #ff9a9e;
+}
+
+::-webkit-scrollbar-button:single-button {
+  background-color: #48dbfb;
+  display: block;
+  border: 2px solid #000;
+  height: 16px;
+  width: 16px;
+}
+
+::-webkit-scrollbar-button:single-button:vertical:decrement {
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M4 10h8L8 4z" fill="%23000"/></svg>');
+  background-position: center;
+}
+
+::-webkit-scrollbar-button:single-button:vertical:increment {
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M4 6h8L8 12z" fill="%23000"/></svg>');
+  background-position: center;
+}
+
+a,
+button,
+[role="button"] {
+  cursor:
+    url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" style="fill:%2348dbfb;stroke:%23000;stroke-width:2px;"><path d="M4 12h16M16 8l4 4-4 4"/></svg>'),
+    pointer !important;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+::selection {
+  background: #ff7b9c;
+  color: #fff;
+  text-shadow: 1px 1px 0 #000;
+}
+
+/* Pixel Art Utilities */
+.pixel-border {
+  box-shadow:
+    -2px 0 0 0 black,
+    2px 0 0 0 black,
+    0 -2px 0 0 black,
+    0 2px 0 0 black;
+  border-radius: 0;
+}
+
+/* Animations */
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+.animate-blink {
+  animation: blink 1.5s step-end infinite;
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* Typewriter cursor */
+@keyframes typing-cursor {
+  from,
+  to {
+    border-color: transparent;
+  }
+  50% {
+    border-color: #ff7b9c;
+  }
+}
+
+/* Page Transition */
+main {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #ff7b9c;
+  border: 2px solid #000;
+  box-shadow:
+    inset 2px 2px 0px rgba(255, 255, 255, 0.5),
+    inset -2px -2px 0px rgba(0, 0, 0, 0.2);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #ff9a9e;
+}
+
+::-webkit-scrollbar-button:single-button {
+  background-color: #48dbfb;
+  display: block;
+  border: 2px solid #000;
+  height: 16px;
+  width: 16px;
+}
+
+::-webkit-scrollbar-button:single-button:vertical:decrement {
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M4 10h8L8 4z" fill="%23000"/></svg>');
+  background-position: center;
+}
+
+::-webkit-scrollbar-button:single-button:vertical:increment {
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M4 6h8L8 12z" fill="%23000"/></svg>');
+  background-position: center;
+}
+
+a,
+button,
+[role="button"] {
+  cursor:
+    url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" style="fill:%2348dbfb;stroke:%23000;stroke-width:2px;"><path d="M4 12h16M16 8l4 4-4 4"/></svg>'),
+    pointer !important;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+::selection {
+  background: #ff7b9c;
+  color: #fff;
+  text-shadow: 1px 1px 0 #000;
+}
+
+/* Pixel Art Utilities */
+.pixel-border {
+  box-shadow:
+    -2px 0 0 0 black,
+    2px 0 0 0 black,
+    0 -2px 0 0 black,
+    0 2px 0 0 black;
+  border-radius: 0;
+}
+
+/* Animations */
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+.animate-blink {
+  animation: blink 1.5s step-end infinite;
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* Typewriter cursor */
+@keyframes typing-cursor {
+  from,
+  to {
+    border-color: transparent;
+  }
+  50% {
+    border-color: #ff7b9c;
+  }
+}
+
+/* Page Transition */
+main {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
