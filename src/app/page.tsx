@@ -63,9 +63,9 @@ export default function Home() {
         </Typography>
       </Box>
       <DailyDrop />
+      <PostList />
       <Inventory />
       <Achievements />
-      <PostList />
     </Container>
   );
 }

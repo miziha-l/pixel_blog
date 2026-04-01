@@ -12,8 +12,14 @@ const DIALOGUES = [
   "我的 MP 快满了，要释放魔法吗？🪄",
   "点我点我！(ﾉ>ω<)ﾉ",
   "需要恢复药水吗？🍎",
-  "好晕啊，不要一直晃我... 😵‍💫"
+  "好晕啊，不要一直晃我... 😵‍💫",
+  "戳我也没有金币掉落啦！🪙",
+  "再摸我，我就要放电了！⚡",
+  "今天的 bug 修完了吗？🐛",
+  "好想吃草莓蛋糕啊... 🍰"
 ];
+
+const FOODS = ['🍎', '🍙', '🍣', '🍗', '🍜', '🍔', '🍦', '🍓'];
 
 export default function PixelPet() {
   // Add dragging state
@@ -22,6 +28,7 @@ export default function PixelPet() {
   const [dialogue, setDialogue] = useState('');
   const [showDialogue, setShowDialogue] = useState(false);
   const [isFlipped, setIsFlipped] = useState(false);
+  const [eating, setEating] = useState('');
   
   // Dragging logic
   const [isDragging, setIsDragging] = useState(false);
@@ -79,19 +86,41 @@ export default function PixelPet() {
   const handleClick = (e: React.MouseEvent) => {
     // Only trigger click if not dragging
     if (Math.abs(position.x - positionRef.current.x) < 5 && Math.abs(position.y - positionRef.current.y) < 5) {
-      const randomDialogue = DIALOGUES[Math.floor(Math.random() * (DIALOGUES.length - 1))]; // Exclude dizzy dialogue
-      setDialogue(randomDialogue);
-      setShowDialogue(true);
+      const isRightClick = e.type === 'contextmenu';
       
-      // Jump animation
-      const currentY = position.y;
-      setPosition({ x: position.x, y: currentY - 30 });
-      setTimeout(() => setPosition({ x: position.x, y: currentY }), 200);
-  
-      // Hide dialogue after 3 seconds
-      setTimeout(() => {
-        setShowDialogue(false);
-      }, 3000);
+      if (isRightClick) {
+        e.preventDefault();
+        const randomFood = FOODS[Math.floor(Math.random() * FOODS.length)];
+        setEating(randomFood);
+        setDialogue(`好吃！${randomFood} 最棒了！😋`);
+        setShowDialogue(true);
+        
+        // Jump animation
+        const currentY = position.y;
+        setPosition({ x: position.x, y: currentY - 20 });
+        setTimeout(() => setPosition({ x: position.x, y: currentY }), 150);
+        setTimeout(() => setPosition({ x: position.x, y: currentY - 20 }), 300);
+        setTimeout(() => setPosition({ x: position.x, y: currentY }), 450);
+
+        setTimeout(() => {
+          setEating('');
+          setShowDialogue(false);
+        }, 3000);
+      } else {
+        const randomDialogue = DIALOGUES[Math.floor(Math.random() * (DIALOGUES.length - 1))]; // Exclude dizzy dialogue
+        setDialogue(randomDialogue);
+        setShowDialogue(true);
+        
+        // Jump animation
+        const currentY = position.y;
+        setPosition({ x: position.x, y: currentY - 30 });
+        setTimeout(() => setPosition({ x: position.x, y: currentY }), 200);
+    
+        // Hide dialogue after 3 seconds
+        setTimeout(() => {
+          setShowDialogue(false);
+        }, 3000);
+      }
     }
   };
 
@@ -161,6 +190,7 @@ export default function PixelPet() {
       <Box
         onMouseDown={handleMouseDown}
         onClick={handleClick}
+        onContextMenu={handleClick}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
         sx={{
@@ -180,11 +210,16 @@ export default function PixelPet() {
           <Box sx={{ position: 'absolute', top: '0', left: '10px', width: '60px', height: '20px', bgcolor: '#ff7b9c', border: '3px solid #000' }} />
           <Box sx={{ position: 'absolute', top: '20px', left: '5px', width: '15px', height: '30px', bgcolor: '#ff7b9c', border: '3px solid #000', borderRight: 'none' }} />
           
-          {/* Eyes - change to spiral when dragging */}
+          {/* Eyes - change to spiral when dragging, heart when eating */}
           {isDragging ? (
             <>
               <Typography sx={{ position: 'absolute', top: '15px', left: '20px', fontSize: '12px', fontWeight: 'bold' }}>X</Typography>
               <Typography sx={{ position: 'absolute', top: '15px', left: '40px', fontSize: '12px', fontWeight: 'bold' }}>X</Typography>
+            </>
+          ) : eating ? (
+            <>
+              <Typography sx={{ position: 'absolute', top: '16px', left: '20px', fontSize: '14px', color: '#ff7675' }}>❤</Typography>
+              <Typography sx={{ position: 'absolute', top: '16px', left: '40px', fontSize: '14px', color: '#ff7675' }}>❤</Typography>
             </>
           ) : (
             <>
@@ -193,9 +228,28 @@ export default function PixelPet() {
             </>
           )}
           
-          {/* Blush */}
-          <Box sx={{ position: 'absolute', top: '35px', left: '18px', width: '8px', height: '4px', bgcolor: '#ff7675' }} />
-          <Box sx={{ position: 'absolute', top: '35px', left: '50px', width: '8px', height: '4px', bgcolor: '#ff7675' }} />
+          {/* Mouth - change when eating */}
+          {eating ? (
+            <Box sx={{ position: 'absolute', top: '38px', left: '35px', width: '10px', height: '6px', bgcolor: '#ff7675', borderRadius: '0 0 10px 10px' }} />
+          ) : (
+            <Box sx={{ position: 'absolute', top: '38px', left: '38px', width: '4px', height: '2px', bgcolor: '#000' }} />
+          )}
+
+          {/* Eating animation */}
+          {eating && (
+            <Typography 
+              sx={{ 
+                position: 'absolute', 
+                top: '30px', 
+                left: '32px', 
+                fontSize: '20px', 
+                zIndex: 10,
+                animation: 'eatFood 0.5s ease-in-out infinite alternate'
+              }}
+            >
+              {eating}
+            </Typography>
+          )}
           
           {/* Body */}
           <Box sx={{ position: 'absolute', top: '50px', left: '25px', width: '30px', height: '20px', bgcolor: '#74b9ff', border: '3px solid #000' }} />
@@ -225,6 +279,10 @@ export default function PixelPet() {
         @keyframes shadowPulse {
           0%, 100% { transform: scale(1); opacity: 0.5; }
           50% { transform: scale(0.8); opacity: 0.2; }
+        }
+        @keyframes eatFood {
+          0% { transform: scale(1) translateY(0); }
+          100% { transform: scale(0.8) translateY(5px); opacity: 0; }
         }
       `}</style>
     </Box>

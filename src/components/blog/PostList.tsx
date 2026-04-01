@@ -9,7 +9,13 @@ import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 import Grid from "@mui/material/Grid";
 import Link from "next/link";
-import { Box, TextField, InputAdornment, Chip } from "@mui/material";
+import {
+  Box,
+  TextField,
+  InputAdornment,
+  Chip,
+  Pagination,
+} from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 
 const CATEGORIES = ["All", "Main Quest", "Side Quest", "Daily", "Event"];
@@ -20,10 +26,13 @@ const CATEGORY_COLORS: Record<string, string> = {
   Event: "#a29bfe",
 };
 
+const ITEMS_PER_PAGE = 6;
+
 export default function PostList() {
   const posts = useBlogStore((state) => state.posts);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [page, setPage] = useState(1);
 
   const filteredPosts = useMemo(() => {
     return posts.filter((post) => {
@@ -36,8 +45,35 @@ export default function PostList() {
     });
   }, [posts, searchQuery, selectedCategory]);
 
+  const totalPages = Math.ceil(filteredPosts.length / ITEMS_PER_PAGE);
+  const paginatedPosts = filteredPosts.slice(
+    (page - 1) * ITEMS_PER_PAGE,
+    page * ITEMS_PER_PAGE,
+  );
+
+  const handleCategoryChange = (cat: string) => {
+    setSelectedCategory(cat);
+    setPage(1); // Reset page when category changes
+  };
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+    setPage(1); // Reset page when search query changes
+  };
+
+  const handlePageChange = (
+    event: React.ChangeEvent<unknown>,
+    value: number,
+  ) => {
+    setPage(value);
+    const element = document.getElementById("post-list-top");
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
+
   return (
-    <Box sx={{ mt: 4 }}>
+    <Box sx={{ mt: 4 }} id="post-list-top">
       <Typography
         variant="h4"
         component="h2"
@@ -60,7 +96,7 @@ export default function PostList() {
           variant="outlined"
           placeholder="搜索任务..."
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          onChange={handleSearchChange}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -87,7 +123,7 @@ export default function PostList() {
           {CATEGORIES.map((cat) => (
             <Button
               key={cat}
-              onClick={() => setSelectedCategory(cat)}
+              onClick={() => handleCategoryChange(cat)}
               sx={{
                 bgcolor:
                   selectedCategory === cat
@@ -119,8 +155,8 @@ export default function PostList() {
         spacing={4}
         sx={{ display: "flex", alignItems: "stretch" }}
       >
-        {filteredPosts.length > 0 ? (
-          filteredPosts.map((post) => (
+        {paginatedPosts.length > 0 ? (
+          paginatedPosts.map((post) => (
             <Grid
               size={{ xs: 12, sm: 6, md: 4 }}
               key={post.id}
@@ -248,6 +284,37 @@ export default function PostList() {
           </Grid>
         )}
       </Grid>
+
+      {totalPages > 1 && (
+        <Box sx={{ mt: 6, display: "flex", justifyContent: "center" }}>
+          <Pagination
+            count={totalPages}
+            page={page}
+            onChange={handlePageChange}
+            color="primary"
+            size="large"
+            sx={{
+              "& .MuiPaginationItem-root": {
+                border: "2px solid #000",
+                bgcolor: "#fff",
+                color: "#000",
+                fontWeight: "bold",
+                boxShadow: "2px 2px 0px #000",
+                "&:hover": {
+                  bgcolor: "#ffeaa7",
+                },
+                "&.Mui-selected": {
+                  bgcolor: "#ff7b9c",
+                  color: "#fff",
+                  "&:hover": {
+                    bgcolor: "#ff4757",
+                  },
+                },
+              },
+            }}
+          />
+        </Box>
+      )}
     </Box>
   );
 }

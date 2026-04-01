@@ -6,6 +6,7 @@ interface PlayerState {
   exp: number;
   maxExp: number;
   addExp: (amount: number) => { leveledUp: boolean };
+  deductExp: (amount: number) => boolean;
 }
 
 export const usePlayerStore = create<PlayerState>()(
@@ -30,6 +31,14 @@ export const usePlayerStore = create<PlayerState>()(
 
         set({ exp: newExp, level: newLevel, maxExp: newMaxExp });
         return { leveledUp };
+      },
+      deductExp: (amount: number) => {
+        const current = get();
+        if (current.exp >= amount) {
+          set({ exp: current.exp - amount });
+          return true;
+        }
+        return false;
       }
     }),
     {

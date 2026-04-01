@@ -6,6 +6,8 @@ import Footer from '@/components/layout/Footer';
 import PixelPet from '@/components/ui/PixelPet';
 import BgmPlayer from '@/components/ui/BgmPlayer';
 import PixelDanmaku from '@/components/ui/PixelDanmaku';
+import WildBug from '@/components/ui/WildBug';
+import KonamiCode from '@/components/ui/KonamiCode';
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -19,7 +21,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="zh-CN">
+    <html lang="zh-CN" suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
@@ -36,6 +38,8 @@ export default function RootLayout({
             <PixelPet />
             <BgmPlayer />
             <PixelDanmaku />
+            <WildBug />
+            <KonamiCode />
           </ThemeRegistry>
         </AppRouterCacheProvider>
       </body>

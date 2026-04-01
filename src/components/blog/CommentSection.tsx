@@ -19,7 +19,8 @@ const AVATAR_FACES = ['(OwO)', '(^▽^)', '(-_-)', '(;¬_¬)', '(>_<)', '(T_T)']
 export default function CommentSection({ postId }: CommentSectionProps) {
   const [author, setAuthor] = useState('');
   const [content, setContent] = useState('');
-  const comments = useBlogStore(state => state.comments.filter(c => c.postId === postId));
+  const allComments = useBlogStore(state => state.comments);
+  const comments = allComments.filter(c => c.postId === postId);
   const addComment = useBlogStore(state => state.addComment);
   const { playClick, playSuccess, playError } = usePixelSound();
   const { addExp } = usePlayerStore();
