@@ -1,33 +1,86 @@
 'use client';
 
-import React, { useState } from 'react';
-import { useBlogStore } from '@/store/useBlogStore';
+import React, { useState, useEffect } from 'react';
 import { usePlayerStore } from '@/store/usePlayerStore';
 import { usePixelSound } from '@/hooks/usePixelSound';
-import { Container, Typography, Box, Paper, TextField, Button, Avatar } from '@mui/material';
+import { Container, Typography, Box, Paper, TextField, Button, Avatar, CircularProgress } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
 
+interface GuestbookMessage {
+  id: string;
+  author: string;
+  content: string;
+  date: string;
+  avatar: string;
+}
+
+const AVATAR_COLORS = ['#ff7675', '#74b9ff', '#55efc4', '#ffeaa7', '#a29bfe', '#fdcb6e', '#00b894', '#0984e3'];
+
 export default function Guestbook() {
-  const messages = useBlogStore((state) => state.messages);
-  const addMessage = useBlogStore((state) => state.addMessage);
+  const [messages, setMessages] = useState<GuestbookMessage[]>([]);
+  const [loading, setLoading] = useState(true);
   const { addExp } = usePlayerStore();
   const { playSuccess, playError } = usePixelSound();
   
   const [author, setAuthor] = useState('');
   const [content, setContent] = useState('');
+  const [submitting, setSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    fetchMessages();
+  }, []);
+
+  const fetchMessages = async () => {
+    try {
+      const response = await fetch('/api/guestbook');
+      if (response.ok) {
+        const data = await response.json();
+        setMessages(data);
+      }
+    } catch (error) {
+      console.error('Failed to load messages:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!author.trim() || !content.trim()) {
+    if (!author.trim() || !content.trim() || submitting) {
       playError();
       return;
     }
     
-    addMessage({ author, content });
-    setAuthor('');
-    setContent('');
-    playSuccess();
-    addExp(30); // 留言获得较多经验
+    setSubmitting(true);
+    const randomColor = AVATAR_COLORS[Math.floor(Math.random() * AVATAR_COLORS.length)];
+
+    try {
+      const response = await fetch('/api/guestbook', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          author: author.trim(),
+          content: content.trim(),
+          avatar: randomColor
+        }),
+      });
+
+      if (response.ok) {
+        const newMessage = await response.json();
+        setMessages(prev => [newMessage, ...prev]);
+        setAuthor('');
+        setContent('');
+        playSuccess();
+        addExp(30); // 留言获得较多经验
+      } else {
+        playError();
+      }
+    } catch (error) {
+      console.error('Failed to post message:', error);
+      playError();
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -103,7 +156,8 @@ export default function Guestbook() {
             type="submit" 
             variant="contained" 
             color="primary"
-            endIcon={<SendIcon />}
+            disabled={submitting}
+            endIcon={submitting ? <CircularProgress size={20} color="inherit" /> : <SendIcon />}
             sx={{ 
               alignSelf: 'flex-end',
               py: 1.5,
@@ -111,27 +165,36 @@ export default function Guestbook() {
               fontSize: '1.1rem'
             }}
           >
-            SUBMIT / 提交
+            {submitting ? 'SUBMITTING...' : 'SUBMIT / 提交'}
           </Button>
         </Box>
       </Paper>
 
       {/* Message List */}
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-        {messages.map((msg) => (
-          <Box key={msg.id} sx={{ display: 'flex', gap: 2 }}>
-            <Avatar 
-              sx={{ 
-                width: 60, 
-                height: 60, 
-                bgcolor: msg.avatarBg, 
-                border: '3px solid #000',
-                boxShadow: '2px 2px 0px #000',
-                fontWeight: 'bold',
-                fontSize: '1.5rem',
-                flexShrink: 0
-              }}
-            >
+        {loading ? (
+          <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
+            <CircularProgress />
+          </Box>
+        ) : messages.length === 0 ? (
+          <Typography variant="body1" textAlign="center" color="text.secondary">
+            还没有人留言，来抢沙发吧！
+          </Typography>
+        ) : (
+          messages.map((msg) => (
+            <Box key={msg.id} sx={{ display: 'flex', gap: 2 }}>
+              <Avatar 
+                sx={{ 
+                  width: 60, 
+                  height: 60, 
+                  bgcolor: msg.avatar, 
+                  border: '3px solid #000',
+                  boxShadow: '2px 2px 0px #000',
+                  fontWeight: 'bold',
+                  fontSize: '1.5rem',
+                  flexShrink: 0
+                }}
+              >
               {msg.author.charAt(0).toUpperCase()}
             </Avatar>
             
@@ -173,10 +236,10 @@ export default function Guestbook() {
               </Box>
               <Typography variant="body1" sx={{ mt: 1, fontSize: '1.1rem', whiteSpace: 'pre-wrap' }}>
                 {msg.content}
-              </Typography>
-            </Paper>
-          </Box>
-        ))}
+              </Typography></Paper>
+            </Box>
+          ))
+        )}
       </Box>
     </Container>
   );

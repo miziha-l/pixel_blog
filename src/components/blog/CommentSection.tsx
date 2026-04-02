@@ -1,12 +1,12 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import Avatar from '@mui/material/Avatar';
-import { useBlogStore } from '@/store/useBlogStore';
+import CircularProgress from '@mui/material/CircularProgress';
 import { usePixelSound } from '@/hooks/usePixelSound';
 import { usePlayerStore } from '@/store/usePlayerStore';
 
@@ -14,34 +14,84 @@ interface CommentSectionProps {
   postId: string;
 }
 
+interface ArticleComment {
+  id: string;
+  postId: string;
+  author: string;
+  content: string;
+  date: string;
+  avatar: string;
+}
+
 const AVATAR_FACES = ['(OwO)', '(^▽^)', '(-_-)', '(;¬_¬)', '(>_<)', '(T_T)'];
+const AVATAR_COLORS = ['#ff7675', '#74b9ff', '#55efc4', '#ffeaa7', '#a29bfe', '#fdcb6e', '#00b894', '#0984e3'];
 
 export default function CommentSection({ postId }: CommentSectionProps) {
   const [author, setAuthor] = useState('');
   const [content, setContent] = useState('');
-  const allComments = useBlogStore(state => state.comments);
-  const comments = allComments.filter(c => c.postId === postId);
-  const addComment = useBlogStore(state => state.addComment);
+  const [comments, setComments] = useState<ArticleComment[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+
   const { playClick, playSuccess, playError } = usePixelSound();
   const { addExp } = usePlayerStore();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    fetchComments();
+  }, [postId]);
+
+  const fetchComments = async () => {
+    try {
+      const response = await fetch(`/api/comments?postId=${postId}`);
+      if (response.ok) {
+        const data = await response.json();
+        setComments(data);
+      }
+    } catch (error) {
+      console.error('Failed to load comments:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!author.trim() || !content.trim()) {
+    if (!author.trim() || !content.trim() || submitting) {
       playError();
       return;
     }
 
-    addComment({
-      postId,
-      author: author.trim(),
-      content: content.trim(),
-    });
+    setSubmitting(true);
+    const randomColor = AVATAR_COLORS[Math.floor(Math.random() * AVATAR_COLORS.length)];
 
-    setAuthor('');
-    setContent('');
-    playSuccess();
-    addExp(20); // 留言获得 20 EXP
+    try {
+      const response = await fetch('/api/comments', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          postId,
+          author: author.trim(),
+          content: content.trim(),
+          avatar: randomColor
+        }),
+      });
+
+      if (response.ok) {
+        const newComment = await response.json();
+        setComments(prev => [...prev, newComment]);
+        setAuthor('');
+        setContent('');
+        playSuccess();
+        addExp(20); // 留言获得 20 EXP
+      } else {
+        playError();
+      }
+    } catch (error) {
+      console.error('Failed to post comment:', error);
+      playError();
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -89,17 +139,27 @@ export default function CommentSection({ postId }: CommentSectionProps) {
           type="submit"
           variant="contained"
           color="secondary"
+          disabled={submitting}
           onMouseEnter={playClick}
           sx={{ width: '100%' }}
         >
-          发送留言 (SUBMIT)
+          {submitting ? 'SUBMITTING...' : '发送留言 (SUBMIT)'}
         </Button>
       </Box>
 
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-        {comments.map((comment) => (
-          <Box 
-            key={comment.id}
+        {loading ? (
+          <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
+            <CircularProgress color="secondary" />
+          </Box>
+        ) : comments.length === 0 ? (
+          <Typography variant="body1" textAlign="center" color="text.secondary" sx={{ p: 4, border: '2px dashed #000' }}>
+            还没有人留言，快来抢第一吧！
+          </Typography>
+        ) : (
+          comments.map((comment) => (
+            <Box 
+              key={comment.id}
             sx={{
               display: 'flex',
               gap: 2,
@@ -111,7 +171,7 @@ export default function CommentSection({ postId }: CommentSectionProps) {
           >
             <Avatar 
               sx={{ 
-                bgcolor: comment.avatarBg, 
+                bgcolor: comment.avatar, 
                 width: 48, 
                 height: 48,
                 fontSize: '12px',
@@ -131,11 +191,11 @@ export default function CommentSection({ postId }: CommentSectionProps) {
                 </Typography>
               </Box>
               <Typography variant="body2" sx={{ whiteSpace: 'pre-line' }}>
-                {comment.content}
-              </Typography>
+                {comment.content}</Typography>
+              </Box>
             </Box>
-          </Box>
-        ))}
+          ))
+        )}
       </Box>
     </Box>
   );

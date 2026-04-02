@@ -35,7 +35,7 @@ export default function PostList() {
   const [page, setPage] = useState(1);
 
   const filteredPosts = useMemo(() => {
-    return posts.filter((post) => {
+    const result = posts.filter((post) => {
       const matchSearch =
         post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         post.excerpt.toLowerCase().includes(searchQuery.toLowerCase());
@@ -43,6 +43,9 @@ export default function PostList() {
         selectedCategory === "All" || post.category === selectedCategory;
       return matchSearch && matchCategory;
     });
+
+    // Sort by date descending (newest first)
+    return result.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   }, [posts, searchQuery, selectedCategory]);
 
   const totalPages = Math.ceil(filteredPosts.length / ITEMS_PER_PAGE);
@@ -251,6 +254,9 @@ export default function PostList() {
                     color="secondary"
                     component={Link}
                     href={`/post/${post.id}`}
+                    onClick={() => {
+                      sessionStorage.setItem('homeScrollPosition', window.scrollY.toString());
+                    }}
                     fullWidth
                     sx={{
                       border: "2px solid #000",

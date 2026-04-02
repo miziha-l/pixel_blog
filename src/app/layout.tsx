@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
-import { AppRouterCacheProvider } from '@mui/material-nextjs/v15-appRouter';
-import ThemeRegistry from '@/theme/ThemeRegistry';
-import Navbar from '@/components/layout/Navbar';
-import Footer from '@/components/layout/Footer';
-import PixelPet from '@/components/ui/PixelPet';
-import BgmPlayer from '@/components/ui/BgmPlayer';
-import PixelDanmaku from '@/components/ui/PixelDanmaku';
-import WildBug from '@/components/ui/WildBug';
-import KonamiCode from '@/components/ui/KonamiCode';
+import { AppRouterCacheProvider } from "@mui/material-nextjs/v15-appRouter";
+import ThemeRegistry from "@/theme/ThemeRegistry";
+import Navbar from "@/components/layout/Navbar";
+import SideNav from "@/components/layout/SideNav";
+import Footer from "@/components/layout/Footer";
+import PixelPet from "@/components/ui/PixelPet";
+import BgmPlayer from "@/components/ui/BgmPlayer";
+import PixelDanmaku from "@/components/ui/PixelDanmaku";
+import KonamiCode from "@/components/ui/KonamiCode";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -24,21 +24,30 @@ export default function RootLayout({
     <html lang="zh-CN" suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet" />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin="anonymous"
+        />
+        <link
+          href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap"
+          rel="stylesheet"
+        />
       </head>
-      <body style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+      <body
+        style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}
+      >
         <AppRouterCacheProvider>
           <ThemeRegistry>
             <Navbar />
-            <main style={{ flex: 1, padding: '32px 0' }}>
+            <SideNav />
+            <main style={{ flex: 1, padding: "100px 0 32px 0" }}>
               {children}
             </main>
             <Footer />
             <PixelPet />
             <BgmPlayer />
             <PixelDanmaku />
-            <WildBug />
             <KonamiCode />
           </ThemeRegistry>
         </AppRouterCacheProvider>
