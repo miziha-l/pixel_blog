@@ -1,10 +1,13 @@
 import { NextResponse } from 'next/server';
-import { initDb } from '@/lib/db';
+import { prisma } from '@/lib/db';
 
 export async function GET() {
   try {
-    const db = await initDb();
-    const messages = await db.all('SELECT * FROM guestbook ORDER BY id DESC');
+    const messages = await prisma.guestbook.findMany({
+      orderBy: {
+        id: 'desc',
+      },
+    });
     
     // Transform id to string to match existing interface
     const formattedMessages = messages.map(msg => ({
@@ -30,15 +33,18 @@ export async function POST(request: Request) {
 
     const date = new Date().toISOString().split('T')[0];
     
-    const db = await initDb();
-    const result = await db.run(
-      'INSERT INTO guestbook (author, content, date, avatar) VALUES (?, ?, ?, ?)',
-      [author, content, date, avatar]
-    );
+    const result = await prisma.guestbook.create({
+      data: {
+        author,
+        content,
+        date,
+        avatar
+      }
+    });
 
     return NextResponse.json(
       { 
-        id: result.lastID?.toString(),
+        id: result.id.toString(),
         author,
         content,
         date,

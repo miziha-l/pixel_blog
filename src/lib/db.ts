@@ -1,39 +1,16 @@
-import sqlite3 from 'sqlite3';
-import { open } from 'sqlite';
-import path from 'path';
+import { PrismaClient } from '@prisma/client';
 
-// Define the path to our SQLite database file
-const dbPath = path.join(process.cwd(), 'database.sqlite');
+const globalForPrisma = globalThis as unknown as {
+  prisma: PrismaClient | undefined;
+};
 
-export async function openDb() {
-  return open({
-    filename: dbPath,
-    driver: sqlite3.Database,
-  });
-}
+export const prisma = globalForPrisma.prisma ?? new PrismaClient();
 
-// Initialize the database and tables if they don't exist
+if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
+
+// Deprecated: the old sqlite functions are no longer needed
+// but we keep a dummy export if any other file imports it by accident, 
+// though we will update the known routes.
 export async function initDb() {
-  const db = await openDb();
-
-  await db.exec(`
-    CREATE TABLE IF NOT EXISTS guestbook (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      author TEXT NOT NULL,
-      content TEXT NOT NULL,
-      date TEXT NOT NULL,
-      avatar TEXT NOT NULL
-    );
-
-    CREATE TABLE IF NOT EXISTS article_comments (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      postId TEXT NOT NULL,
-      author TEXT NOT NULL,
-      content TEXT NOT NULL,
-      date TEXT NOT NULL,
-      avatar TEXT NOT NULL
-    );
-  `);
-
-  return db;
+  return prisma;
 }

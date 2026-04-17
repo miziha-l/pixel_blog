@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { initDb } from '@/lib/db';
+import { prisma } from '@/lib/db';
 
 export async function GET(request: Request) {
   try {
@@ -10,11 +10,14 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Post ID is required' }, { status: 400 });
     }
 
-    const db = await initDb();
-    const comments = await db.all(
-      'SELECT * FROM article_comments WHERE postId = ? ORDER BY id ASC',
-      [postId]
-    );
+    const comments = await prisma.articleComment.findMany({
+      where: {
+        postId: postId,
+      },
+      orderBy: {
+        id: 'asc',
+      },
+    });
     
     // Transform id to string to match existing interface
     const formattedComments = comments.map(msg => ({
@@ -40,15 +43,19 @@ export async function POST(request: Request) {
 
     const date = new Date().toISOString().split('T')[0];
     
-    const db = await initDb();
-    const result = await db.run(
-      'INSERT INTO article_comments (postId, author, content, date, avatar) VALUES (?, ?, ?, ?, ?)',
-      [postId, author, content, date, avatar]
-    );
+    const result = await prisma.articleComment.create({
+      data: {
+        postId,
+        author,
+        content,
+        date,
+        avatar
+      }
+    });
 
     return NextResponse.json(
       { 
-        id: result.lastID?.toString(),
+        id: result.id.toString(),
         postId,
         author,
         content,
